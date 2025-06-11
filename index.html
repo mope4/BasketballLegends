@@ -68,7 +68,7 @@
     h2 {
         margin-top: 3rem;
         font-size: 2.5rem;
-        text-shadow: 2px 2px 5px rgba(255, 204, 0, 0.3); /* Different shadow for H2 */
+        text-shadow: 2px 2px 5px rgba(255, 204, 0, 0.3);
     }
 
     .discord-link-wrapper {
@@ -208,7 +208,7 @@
 
     tbody tr {
       transition: background-color 0.2s ease, transform 0.1s ease;
-      cursor: pointer; /* Indicate clickable row */
+      cursor: pointer;
     }
 
     tbody tr:hover {
@@ -220,9 +220,8 @@
       background-color: #cccccc;
     }
 
-    /* Rarity specific colors for main items */
     tbody tr.mythic td {
-      background-color: rgb(221, 80, 229); /* Purple */
+      background-color: rgb(221, 80, 229);
       color: #000000d4;
     }
 
@@ -231,7 +230,7 @@
     }
 
     tbody tr.legendary td {
-      background-color: rgb(228, 175, 51); /* Gold */
+      background-color: rgb(228, 175, 51);
       color: #000;
     }
 
@@ -239,10 +238,9 @@
       background-color: rgba(228, 175, 51, 0.9);
     }
 
-    /* Rarity specific colors for collectable items and rarity key */
     tbody tr.epic td {
-        background-color: rgb(135, 106, 186); /* Epic color */
-        color: #fff; /* Ensure text is visible */
+        background-color: rgb(135, 106, 186);
+        color: #000000; 
     }
 
     tbody tr.epic:hover td {
@@ -250,8 +248,8 @@
     }
 
     tbody tr.rare td {
-        background-color: rgb(115, 139, 231); /* Rare color */
-        color: #fff;
+        background-color: rgb(115, 139, 231);
+        color: #000000;
     }
 
     tbody tr.rare:hover td {
@@ -259,8 +257,8 @@
     }
 
     tbody tr.uncommon td {
-        background-color: rgb(146, 255, 103); /* Uncommon color */
-        color: #000; /* For better contrast on light green */
+        background-color: rgb(146, 255, 103);
+        color: #000; 
     }
 
     tbody tr.uncommon:hover td {
@@ -268,8 +266,8 @@
     }
 
     tbody tr.common td {
-        background-color: rgb(241, 241, 241); /* Common color */
-        color: #000; /* For better contrast on light grey */
+        background-color: rgb(241, 241, 241); 
+        color: #000;
     }
 
     tbody tr.common:hover td {
@@ -317,7 +315,7 @@
         border-radius: 10px;
         margin-top: 1rem;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        min-width: 700px; /* Match table width */
+        min-width: 700px;
         width: 100%;
     }
 
@@ -528,7 +526,7 @@
     ];
 
     const collectableItems = [
-        // Epic Collectables
+
         { item: 'Solar Eclipse', value: '400K', demandScale: 8.5, demandRanking: 'Great', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/shorts/9XCe_1njRcI' },
         { item: 'Monarch', value: '300k', demandScale: 7.5, demandRanking: 'Great', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/shorts/cDmHkouRBNM' },
         { item: 'Shamrock', value: '250k', demandScale: 8, demandRanking: 'Great', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/shorts/h1UepdkXgaQ' },
@@ -554,7 +552,6 @@
         { item: 'Ornament', value: '45k', demandScale: 5, demandRanking: 'Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/shorts/D9mcljdGCC4' },
         { item: 'Aurora (Fake)', value: '40k', demandScale: 6, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=lMBVKeiER0s' },
 
-        // Rare Collectables
         { item: 'Moon', value: '95k', demandScale: 6, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/shorts/mNr-pPWCy7I' },
         { item: 'Rubber Ducky', value: '70k', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/shorts/tF4cwFqvRaY' },
         { item: 'Ghost Dog', value: '65k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/shorts/WRuFcjNLHyQ' },
@@ -569,7 +566,6 @@
         { item: 'Grim Reaper', value: '40k', demandScale: 4.5, demandRanking: 'Slightly Below Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/shorts/a6dP9a0Jeas' },
         { item: 'Lone Wolf', value: '30k', demandScale: 3.5, demandRanking: 'Slightly Below Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/shorts/6hkqBrIpuyU' },
 
-        // Uncommon Collectables
         { item: 'Blue Eye', value: '200K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/shorts/5uYfRsOcEVw' },
         { item: 'Too Easy', value: '200K', demandScale: 8, demandRanking: 'Great', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/shorts/NEHx4fe4G9w' },
         { item: 'Santa Dog', value: '100K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/shorts/PqezRs3jcws' },
@@ -587,7 +583,6 @@
         { item: 'Witch', value: '45k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/shorts/erdrSmmdP-0' },
         { item: 'Magic and Full Moon', value: '40k', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/shorts/_sx9tkbZpJY' },
 
-        // Common Collectables (all other specified items default to common)
         { item: 'Wavy Orange', value: '100k', demandScale: 8, demandRanking: 'Great', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'common', showcase: 'https://www.youtube.com/shorts/hgUtfri3otM' },
         { item: 'Creep', value: '90k', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'common', showcase: 'https://www.youtube.com/shorts/a4ulkBqhzMg' },
         { item: 'Motherboard', value: '90k', demandScale: 6, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'common', showcase: 'https://www.youtube.com/shorts/XAMflZjW4BY' },
@@ -603,8 +598,8 @@
 
     let currentSortColumnMain = null;
     let sortDirectionMain = 'asc';
-    let currentSortColumnCollectable = 'value'; // Default sort by value for collectables
-    let sortDirectionCollectable = 'desc'; // Default sort direction for collectables (highest value first)
+    let currentSortColumnCollectable = 'value';
+    let sortDirectionCollectable = 'desc';
 
     function parseValue(valueString) {
         if (valueString === 'N/A' || typeof valueString !== 'string') return 0;
@@ -635,13 +630,11 @@
         let itemName = item.item;
         if (item.valueStatus === 'HYPED' || item.demandStatus === 'HYPED') {
             row.classList.add('pulsating');
-            itemName = '🔥 ' + itemName; // Add fire emoji
+            itemName = '🔥 ' + itemName;
         }
 
-        // Generate stars for item quality
         const stars = '⭐'.repeat(item.itemQuality);
 
-        // Add click event listener to the row
         if (item.showcase) {
             row.addEventListener('click', () => {
                 window.open(item.showcase, '_blank');
@@ -679,10 +672,9 @@
             let itemName = item.item;
             if (item.valueStatus === 'HYPED' || item.demandStatus === 'HYPED') {
                 row.classList.add('pulsating');
-                itemName = '🔥 ' + itemName; // Add fire emoji
+                itemName = '🔥 ' + itemName;
             }
 
-            // Add click event listener to the row
             if (item.showcase) {
                 row.addEventListener('click', () => {
                     window.open(item.showcase, '_blank');
@@ -767,55 +759,45 @@
 
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Set last updated date
       const lastUpdatedElement = document.getElementById('last-updated');
       const now = new Date();
       const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' };
       lastUpdatedElement.textContent = `Last Updated: ${now.toLocaleDateString('en-US', options)}`;
 
       let displayedMainItems = [...items];
-      let displayedCollectableItems = [...collectableItems]; // Use original collectable items
+      let displayedCollectableItems = [...collectableItems];
 
-      // Initial sort for collectable items by value (descending)
       displayedCollectableItems = sortTable(displayedCollectableItems, currentSortColumnCollectable, sortDirectionCollectable, 'numeric');
 
       renderMainTable(displayedMainItems, 'item-table');
       renderCollectableTable(displayedCollectableItems, 'collectable-item-table');
       renderKeyTable(keyItems, 'key-table');
 
-      // Set initial sort indicator for collectable table
       applySortIndicators('collectable-table-headers', currentSortColumnCollectable, sortDirectionCollectable);
 
-
-      // Search functionality for main table
       const searchInput = document.getElementById('search-input');
       searchInput.addEventListener('input', (event) => {
         const searchTerm = event.target.value.toLowerCase();
         displayedMainItems = items.filter(item =>
           item.item.toLowerCase().includes(searchTerm)
         );
-        // Reset sort when searching
+
         currentSortColumnMain = null;
         sortDirectionMain = 'asc';
         applySortIndicators('main-table-headers', currentSortColumnMain, sortDirectionMain);
         renderMainTable(displayedMainItems, 'item-table');
       });
 
-      // New search functionality for collectable table
       const collectableSearchInput = document.getElementById('collectable-search-input');
       collectableSearchInput.addEventListener('input', (event) => {
         const searchTerm = event.target.value.toLowerCase();
-        // Filter from the original collectableItems array
         let filteredData = collectableItems.filter(item =>
           item.item.toLowerCase().includes(searchTerm)
         );
-        // Apply current sort order after filtering
         displayedCollectableItems = sortTable(filteredData, currentSortColumnCollectable, sortDirectionCollectable, 'numeric');
         renderCollectableTable(displayedCollectableItems, 'collectable-item-table');
       });
 
-
-      // Sorting for main table
       document.getElementById('main-table-headers').querySelectorAll('th[data-sort-by]').forEach(header => {
         header.addEventListener('click', () => {
           const column = header.dataset.sortBy;
@@ -840,7 +822,6 @@
         });
       });
 
-      // Sorting for collectable table
       document.getElementById('collectable-table-headers').querySelectorAll('th[data-sort-by]').forEach(header => {
         header.addEventListener('click', () => {
           const column = header.dataset.sortBy;
