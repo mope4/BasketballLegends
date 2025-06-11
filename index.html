@@ -53,7 +53,7 @@
       max-width: 1400px;
     }
 
-    h1 {
+    h1, h2 {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 3.5rem;
       margin-bottom: 0.5rem;
@@ -63,6 +63,12 @@
       text-shadow: 2px 2px 5px rgba(0, 255, 204, 0.3);
       text-align: center;
       width: 100%;
+    }
+
+    h2 {
+        margin-top: 3rem;
+        font-size: 2.5rem;
+        text-shadow: 2px 2px 5px rgba(255, 204, 0, 0.3); /* Different shadow for H2 */
     }
 
     .discord-link-wrapper {
@@ -201,15 +207,22 @@
     }
 
     tbody tr {
-      transition: background-color 0.2s ease;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      cursor: pointer; /* Indicate clickable row */
+    }
+
+    tbody tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 255, 204, 0.3);
     }
 
     tbody tr:nth-child(even) td {
       background-color: #cccccc;
     }
 
+    /* Rarity specific colors for main items */
     tbody tr.mythic td {
-      background-color: rgb(221, 80, 229);
+      background-color: rgb(221, 80, 229); /* Purple */
       color: #000000d4;
     }
 
@@ -218,12 +231,49 @@
     }
 
     tbody tr.legendary td {
-      background-color: rgb(228, 175, 51);
+      background-color: rgb(228, 175, 51); /* Gold */
       color: #000;
     }
 
     tbody tr.legendary:hover td {
       background-color: rgba(228, 175, 51, 0.9);
+    }
+
+    /* Rarity specific colors for collectable items and rarity key */
+    tbody tr.epic td {
+        background-color: rgb(135, 106, 186); /* Epic color */
+        color: #fff; /* Ensure text is visible */
+    }
+
+    tbody tr.epic:hover td {
+        background-color: rgba(135, 106, 186, 0.9);
+    }
+
+    tbody tr.rare td {
+        background-color: rgb(115, 139, 231); /* Rare color */
+        color: #fff;
+    }
+
+    tbody tr.rare:hover td {
+        background-color: rgba(115, 139, 231, 0.9);
+    }
+
+    tbody tr.uncommon td {
+        background-color: rgb(146, 255, 103); /* Uncommon color */
+        color: #000; /* For better contrast on light green */
+    }
+
+    tbody tr.uncommon:hover td {
+        background-color: rgba(146, 255, 103, 0.9);
+    }
+
+    tbody tr.common td {
+        background-color: rgb(241, 241, 241); /* Common color */
+        color: #000; /* For better contrast on light grey */
+    }
+
+    tbody tr.common:hover td {
+        background-color: rgba(241, 241, 241, 0.9);
     }
 
     tbody tr.pulsating {
@@ -258,6 +308,19 @@
         box-shadow: none !important;
     }
 
+    .no-results {
+        background-color: #333;
+        color: #fff;
+        padding: 1.5rem;
+        text-align: center;
+        font-size: 1.1rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        min-width: 700px; /* Match table width */
+        width: 100%;
+    }
+
     ::-webkit-scrollbar {
       width: 10px;
       height: 10px;
@@ -290,11 +353,10 @@
     <div class="controls">
       <input type="text" id="search-input" placeholder="Search item name...">
     </div>
-
     <div class="table-container">
       <table>
         <thead>
-          <tr>
+          <tr id="main-table-headers">
             <th>Item</th>
             <th data-sort-by="value" title="The current estimated value of the item in Millions (M) or Thousands (K) of in-game currency.">Value <span class="sort-arrow"></span></th>
             <th data-sort-by="demandScale" title="A rating from 1-10 indicating the overall demand for the item (10 being highest).">Demand Scale <span class="sort-arrow"></span></th>
@@ -306,7 +368,47 @@
         </thead>
         <tbody id="item-table"></tbody>
       </table>
+      <div id="no-results-main" class="no-results" style="display: none;">No items found matching your search.</div>
     </div>
+
+    <h2>Collectable Items</h2>
+    <div class="controls">
+      <input type="text" id="collectable-search-input" placeholder="Search collectable item...">
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr id="collectable-table-headers">
+                    <th>Item</th>
+                    <th data-sort-by="value" title="The current estimated value of the item in Millions (M) or Thousands (K) of in-game currency.">Value <span class="sort-arrow"></span></th>
+                    <th data-sort-by="demandScale" title="A rating from 1-10 indicating the overall demand for the item (10 being highest).">Demand Scale <span class="sort-arrow"></span></th>
+                    <th>Demand Ranking</th>
+                    <th>Value Status</th>
+                    <th>Demand Status</th>
+                </tr>
+            </thead>
+            <tbody id="collectable-item-table"></tbody>
+        </table>
+        <div id="no-results-collectable" class="no-results" style="display: none;">No collectable items found matching your search.</div>
+    </div>
+
+    <h2>Rarity Key</h2>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rarity</th>
+                    <th>Value</th>
+                    <th>Demand Scale</th>
+                    <th>Demand Ranking</th>
+                    <th>Value Status</th>
+                    <th>Demand Status</th>
+                </tr>
+            </thead>
+            <tbody id="key-table"></tbody>
+        </table>
+    </div>
+
   </main>
 
   <footer>
@@ -423,223 +525,344 @@
       { item: 'Fatal Error', value: '170K', demandScale: 7, demandRanking: 'GAbove Averagereat', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/ckX_3bACkW8' },
       { item: 'Celestial', value: '140K', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/NCdBP4q-5cM' },
       { item: 'Summer Bot', value: '140K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/PRP6nr5cqHU' },
-      { item: 'Blood Moon', value: '135K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/bVggXrbjwRE' },
-      { item: 'Blue Horizon', value: '130K', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/0gWZlpiY8Ew' },
-      { item: 'Nucleus', value: '130K', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/HEhrKT7caOg' },
-      { item: 'Ivy', value: '130K', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/cFI80QJjP7U' },
-      { item: 'Melancholy', value: '130K', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/uPijlnE63TM' },
-      { item: 'Ghostly', value: '130K', demandScale: 6.5, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/QSpBTUQu4I4' },
-      { item: 'Sleigh', value: '130K', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/HTQA7zrLk-A' },
-      { item: 'Dark Matter', value: '130K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/1cBjXQOPO8g' },
-      { item: 'Skeletal', value: '130K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/pMUyGsb-gNU' },
-      { item: 'Stitch Face', value: '130K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/jBoEo-xqDh8' },
-      { item: 'Aerial Eye', value: '130K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/eEEvvmq_w44' },
-      { item: 'Dribbling Pumpkins', value: '130K', demandScale: 5, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/BprfwNX6jV8' },
-      { item: 'Electrical Magician', value: '125K', demandScale: 7, demandRanking: 'Great', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/6GfmBdrA91A' },
-      { item: 'Nuke', value: '125K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/SjgYiHzZmXk' },
-      { item: 'Clawed', value: '125K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/AXKFsOpsSrQ' },
-      { item: 'Amber', value: '125K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/cFExsEMCm2w' },
-      { item: 'Gold Giftwrap', value: '125K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/k7Y9KhTwflY' },
-      { item: 'Fire & Frost', value: '125K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/MQcCpidnw8A' },
-      { item: 'Peppermint', value: '125K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/HfNrlnOtH1o' },
-      { item: 'Christmas Court', value: '125K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/1sOKS9rZXdY' },
-      { item: 'Vampire', value: '125K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/AgPbsAWpw6w' },
-      { item: 'Cyborg', value: '125K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/AeUilwB6924' },
-      { item: 'Meltdown', value: '120K', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/UX-w0GqJ8NM' },
-      { item: 'Exoplanet', value: '120K', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/QbKjcguccVk' },
-      { item: 'Crystallized Explosive', value: '120K', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/cR86tWGdnlQ' },
-      { item: 'Purple Slam', value: '120K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/jETxjUxrCcs' },
-      { item: 'Spring Bash', value: '120K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/oFz6mhNvfZk' },
-      { item: 'Thunder Ring', value: '120K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/6wwnHpv8eyc' },
-      { item: 'Druid', value: '120K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/RuBB1AvfS64' },
-      { item: 'Contaminated', value: '120K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/ziTVmqgh_1w' },
-      { item: 'Marigold', value: '120K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/dlTcDUKe68M' },
-      { item: 'Whirl', value: '120K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/KUKoyGlG6JE' },
-      { item: 'Yoru', value: '120K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/f9cE0f4pwxo' },
-      { item: 'Poseidon', value: '120K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/CPhlPDf5jcc' },
-      { item: 'Dragons Pillar', value: '120K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/NqeQKMIO14U' },
-      { item: 'Meridian Slash', value: '120K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/-HYVsAEZrOg' },
-      { item: 'Marine', value: '120K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/JB7sCfy9yhw' },
-      { item: 'Fruity', value: '120K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/iMLmVUO9NQc' },
-      { item: 'Giant', value: '120K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/7C6OpzlLeCA' },
-      { item: 'Psycho 100', value: '120K', demandScale: 5, demandRanking: 'Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/Z6-OP364YLA' },
-      { item: 'Hysterical Flames', value: '115K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/jPnhtwIIRks' },
-      { item: 'Mecha', value: '115K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/1JCez2Mlm6I' },
-      { item: 'Byte', value: '115K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/02WceLS0tXY' },
-      { item: 'Ghoul', value: '115K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/gzDHeF2mxM8' },
-      { item: 'Castle', value: '115K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/zh9EHPOKGpQ' },
-      { item: 'Polar', value: '110K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/UMp4gjOM5fw' },
-      { item: 'Iris', value: '110K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/Lk2U6RTc9-o' },
-      { item: 'Summer Heat', value: '100K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/WAUEssKunOM' },
-      { item: 'Spiked', value: '100K', demandScale: 7, demandRanking: 'Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/3rzzu7HCpzk?feature=share' },
-      { item: 'Meridian', value: '100K', demandScale: 6.5, demandRanking: 'Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/bJA7lpXJ7-w' },
-      { item: 'Hypnotic', value: '95K', demandScale: 6, demandRanking: 'Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/yh5sIqa_Wfw' },
-      { item: 'Solar Beam', value: '90K', demandScale: 6.5, demandRanking: 'Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/Fdn5C-1aUlk' },
-      { item: 'Galactic', value: '85K', demandScale: 5, demandRanking: 'Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/wJb9qxyW-jY' },
-      { item: 'Malfunction', value: '80K', demandScale: 5.5, demandRanking: 'Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/WMRU97KMNaA' },
-      { item: 'Independence Day', value: '80K', demandScale: 5, demandRanking: 'Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/6wXzLMG5ufo' },
-      { item: 'Fire & Ice', value: '80K', demandScale: 5, demandRanking: 'Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/cnb6W9vvObQ' },
-      { item: 'Api Biru', value: '80K', demandScale: 5, demandRanking: 'Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/Fhb5_516a24' },
-      { item: 'Interface', value: '80K', demandScale: 5.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/mw8NoY3VuN0' },
-      { item: 'Timescape', value: '75K', demandScale: 5.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/g9gMss52zQU' },
-      { item: 'Holiday', value: '75K', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/Lsku-_K8BSk' },
-      { item: 'Stained Moon', value: '75K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/TzI7ksctefQ' },
-      { item: 'SPRINGLIKE', value: '70K', demandScale: 7, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/kJWIZ5X_0zY' },
-      { item: 'Magma', value: '70K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/H38l4V8QldE' },
-      { item: 'Sour Candy', value: '65K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/1RMS2KCH-Ac' },
-      { item: 'Dancing Lights', value: '65K', demandScale: 5, demandRanking: 'Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/mxEbwVpwV-U' },
-      { item: 'Cyan Asteroid', value: '65K', demandScale: 4.5, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/IYn-Eh3Dak0' },
-      { item: 'Green Light', value: '65K', demandScale: 4.5, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/uEqFr0FrTMw' },
-      { item: 'Pillar Of Light', value: '60K', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/HCba-2sBtOI' },
-      { item: 'Vortex', value: '60K', demandScale: 4.5, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/92cWp6uJIXg' },
-      { item: 'Meteor Strike', value: '60K', demandScale: 3, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/_CYU0Y32VuM' },
-      { item: 'Evil', value: '55K', demandScale: 3, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/MxU8UX5z3vU' },
-      { item: 'Explosive', value: '55K', demandScale: 4, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/tmOFaDebMyc' },
-      { item: 'Thunder God', value: '50K', demandScale: 3.5, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/_eeUwwFAhlo' },
-      { item: 'Hollow Purple', value: '50K', demandScale: 3, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/timvgeyay7M' },
-      { item: 'Cupids Bow', value: '50K', demandScale: 3, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/b-r89zamTIc' },
-      { item: 'Water Slam', value: '40K', demandScale: 2, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/G2qdRzGw8dI' },
-      { item: 'Lightning', value: '30K', demandScale: 2, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/70yWMYasTXA' },
-      { item: 'Hex', value: '25K', demandScale: 2, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/wROr4LHtmOc' },
-      { item: 'Phoenix Cannon', value: '25K', demandScale: 2, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/x2fohgsQHkg' },
-      { item: 'RGB', value: '20K', demandScale: 1, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/rfj0diRmeZI' },
-      { item: 'Airstrike', value: '20K', demandScale: 2, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/4Ja5it35ocU' },
-      { item: 'Money Counter', value: '15K', demandScale: 2, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/RYglVwv64H4' },
-      { item: 'Neon Triangles', value: '15K', demandScale: 2, demandRanking: 'Slightly Below Average', valueStatus: 'Stable', demandStatus: 'Stable', itemQuality: 4, rarity: 'legendary', showcase: 'https://www.youtube.com/shorts/MCANRHRnEGE' },
     ];
 
-    function valueToNumber(val) {
-      const suffix = val.slice(-1).toUpperCase();
-      const number = parseFloat(val.slice(0, -1));
-      if (suffix === 'M') return number * 1_000_000;
-      if (suffix === 'K') return number * 1_000;
-      return parseFloat(val);
-    }
+    const collectableItems = [
+        // Epic Collectables
+        { item: 'Solar Eclipse', value: '400K', demandScale: 8.5, demandRanking: 'Great', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Monarch', value: '300k', demandScale: 7.5, demandRanking: 'Great', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Shamrock', value: '250k', demandScale: 8, demandRanking: 'Great', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Demon', value: '100k', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Super Charged', value: '100K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Warped', value: '80k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Musical Phen', value: '80k', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Mini Amat', value: '80k', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Comic Book', value: '75k', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Snow Tree', value: '75k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Xmas Confetti', value: '70k', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Bats', value: '70k', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Sapphire', value: '70k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'New Years 2024', value: '70k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Ruby', value: '65k', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Emerald', value: '60k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Christmas Candy', value: '60k', demandScale: 6, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Penguin', value: '60k', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Polar Bear', value: '60k', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Dunking Skeletons', value: '50k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Ball 9000', value: '45k', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Haunted Retro', value: '45k', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Ornament', value: '45k', demandScale: 5, demandRanking: 'Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Aurora (Fake)', value: '40k', demandScale: 6, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'epic', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
 
-    let currentSortColumn = 'value';
-    let currentSortDirection = 'desc';
+        // Rare Collectables
+        { item: 'Moon', value: '95k', demandScale: 6, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Rubber Ducky', value: '70k', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Ghost Dog', value: '65k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Magic Stars', value: '60k', demandScale: 8, demandRanking: 'Great', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Cat', value: '60k', demandScale: 5.5, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Santa', value: '60k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Spiderwebs', value: '50k', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Spider', value: '50k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Cemetery', value: '50k', demandScale: 5, demandRanking: 'Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Christmas Lights', value: '45k', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Soul', value: '40k', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Grim Reaper', value: '40k', demandScale: 4.5, demandRanking: 'Slightly Below Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Lone Wolf', value: '30k', demandScale: 3.5, demandRanking: 'Slightly Below Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'rare', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
 
-    const itemTable = document.getElementById('item-table');
-    const searchInput = document.getElementById('search-input');
-    const tableHeaders = document.querySelectorAll('thead th[data-sort-by]');
-    const lastUpdatedElement = document.getElementById('last-updated');
+        // Uncommon Collectables
+        { item: 'Blue Eye', value: '200K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Too Easy', value: '200K', demandScale: 8, demandRanking: 'Great', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Santa Dog', value: '100K', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Skeleton', value: '90k', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Black Flames', value: '75k', demandScale: 6.5, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Pumpkin (Effect)', value: '70k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Monster Eyes', value: '60k', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Mummy Wrap', value: '60k', demandScale: 5.5, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Alien', value: '60k', demandScale: 5.5, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Cats Eye', value: '60k', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Music', value: '55k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Inferno', value: '55k', demandScale: 7.5, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Haunted Castle', value: '50k', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Creepy Forest', value: '50k', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Witch', value: '45k', demandScale: 7, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Magic and Full Moon', value: '40k', demandScale: 6, demandRanking: 'Slightly Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'uncommon', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
 
-    function updateLastUpdated() {
-      const now = new Date();
-      const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-      lastUpdatedElement.textContent = `Values Last Updated: ${now.toLocaleDateString(undefined, options)}`;
-    }
+        // Common Collectables (all other specified items default to common)
+        { item: 'Wavy Orange', value: '100k', demandScale: 8, demandRanking: 'Great', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'common', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { item: 'Motherboard', value: '90k', demandScale: 6, demandRanking: 'Above Average', valueStatus: 'Collectors', demandStatus: 'Collectors', rarity: 'common', showcase: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+    ];
 
-    function renderItems() {
-      itemTable.innerHTML = "";
-      const searchTerm = searchInput.value.toLowerCase();
+    const keyItems = [
+        { rarity: 'Epic', value: '3.75K', demandScale: '3.5', demandRanking: 'Below Average', valueStatus: 'Stable', demandStatus: 'Stable' },
+        { rarity: 'Rare', value: '1.25K', demandScale: '2', demandRanking: 'Bad', valueStatus: 'Stable', demandStatus: 'Stable' },
+        { rarity: 'Uncommon', value: '315', demandScale: '1', demandRanking: 'Terrible', valueStatus: 'Stable', demandStatus: 'Stable' },
+        { rarity: 'Common', value: '105', demandScale: '1', demandRanking: 'Terrible', valueStatus: 'Stable', demandStatus: 'Stable' }
+    ];
 
-      let filteredItems = items.filter(item => {
-        if (searchTerm && !item.item.toLowerCase().includes(searchTerm)) {
-          return false;
+    let currentSortColumnMain = null;
+    let sortDirectionMain = 'asc';
+    let currentSortColumnCollectable = 'value'; // Default sort by value for collectables
+    let sortDirectionCollectable = 'desc'; // Default sort direction for collectables (highest value first)
+
+    function parseValue(valueString) {
+        if (valueString === 'N/A' || typeof valueString !== 'string') return 0;
+        const numericValue = parseFloat(valueString);
+        if (valueString.includes('M')) {
+            return numericValue * 1000000;
+        } else if (valueString.includes('K')) {
+            return numericValue * 1000;
         }
-        return true;
-      });
+        return numericValue;
+    }
 
-      if (filteredItems.length === 0) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td colspan="7" style="text-align: center; color: #aaa; padding: 2rem; font-style: italic; background-color: #1a1a1a;">
-            No items found matching your search criteria.
-          </td>
-        `;
-        itemTable.appendChild(tr);
+    function renderMainTable(data, tableId) {
+      const tableBody = document.getElementById(tableId);
+      const noResultsMain = document.getElementById('no-results-main');
+      tableBody.innerHTML = '';
+
+      if (data.length === 0) {
+        noResultsMain.style.display = 'block';
         return;
+      } else {
+        noResultsMain.style.display = 'none';
       }
 
-      filteredItems.sort((a, b) => {
-        let valA, valB;
-
-        if (currentSortColumn === 'value') {
-          valA = valueToNumber(a.value);
-          valB = valueToNumber(b.value);
-        } else if (currentSortColumn === 'demandScale') {
-          valA = a.demandScale;
-          valB = b.demandScale;
+      data.forEach(item => {
+        const row = document.createElement('tr');
+        row.classList.add(item.rarity);
+        let itemName = item.item;
+        if (item.valueStatus === 'HYPED' || item.demandStatus === 'HYPED') {
+            row.classList.add('pulsating');
+            itemName = '🔥 ' + itemName; // Add fire emoji
         }
 
-        if (valA < valB) {
-          return currentSortDirection === 'asc' ? -1 : 1;
-        }
-        if (valA > valB) {
-          return currentSortDirection === 'asc' ? 1 : -1;
-        }
-        return 0;
-      });
+        // Generate stars for item quality
+        const stars = '⭐'.repeat(item.itemQuality);
 
-      tableHeaders.forEach(header => {
-        header.classList.remove('sort-asc', 'sort-desc');
-        const sortArrowSpan = header.querySelector('.sort-arrow');
-        if (sortArrowSpan) {
-            sortArrowSpan.textContent = '';
-        }
-      });
-      const activeHeader = document.querySelector(`th[data-sort-by="${currentSortColumn}"]`);
-      if (activeHeader) {
-        activeHeader.classList.add(`sort-${currentSortDirection}`);
-        const sortArrowSpan = activeHeader.querySelector('.sort-arrow');
-        if (sortArrowSpan) {
-            sortArrowSpan.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
-        }
-      }
-
-      filteredItems.forEach(({ showcase, item, value, demandScale, demandRanking, valueStatus, demandStatus, itemQuality, rarity }) => {
-        const isHyped = valueStatus === 'HYPED' || demandStatus === 'HYPED';
-
-        const tr = document.createElement('tr');
-        if (rarity) tr.classList.add(rarity);
-
-        if (isHyped) {
-          tr.classList.add('pulsating');
+        // Add click event listener to the row
+        if (item.showcase) {
+            row.addEventListener('click', () => {
+                window.open(item.showcase, '_blank');
+            });
         }
 
-        const displayName = isHyped ? `🔥 ${item}` : item;
-
-        tr.innerHTML = `
-          <td>${displayName}</td>
-          <td>${value}</td>
-          <td>${demandScale}</td>
-          <td>${demandRanking}</td>
-          <td>${valueStatus}</td>
-          <td>${demandStatus}</td>
-          <td>${'⭐️'.repeat(itemQuality)}</td>
+        row.innerHTML = `
+          <td>${itemName}</td>
+          <td>${item.value}</td>
+          <td>${item.demandScale}</td>
+          <td>${item.demandRanking}</td>
+          <td>${item.valueStatus}</td>
+          <td>${item.demandStatus}</td>
+          <td>${stars}</td>
         `;
-
-        if (showcase && showcase !== '#') {
-          tr.style.cursor = 'pointer';
-          tr.addEventListener('click', () => {
-            window.open(showcase, '_blank');
-          });
-        }
-
-        itemTable.appendChild(tr);
+        tableBody.appendChild(row);
       });
     }
 
-    searchInput.addEventListener('input', renderItems);
+    function renderCollectableTable(data, tableId) {
+        const tableBody = document.getElementById(tableId);
+        const noResultsCollectable = document.getElementById('no-results-collectable');
+        tableBody.innerHTML = '';
 
-    tableHeaders.forEach(header => {
-      header.addEventListener('click', () => {
-        const sortBy = header.getAttribute('data-sort-by');
-        if (sortBy) {
-          if (currentSortColumn === sortBy) {
-            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-          } else {
-            currentSortColumn = sortBy;
-            currentSortDirection = 'desc';
-          }
-          renderItems();
+        if (data.length === 0) {
+            noResultsCollectable.style.display = 'block';
+            return;
+        } else {
+            noResultsCollectable.style.display = 'none';
         }
+
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.classList.add(item.rarity);
+            let itemName = item.item;
+            if (item.valueStatus === 'HYPED' || item.demandStatus === 'HYPED') {
+                row.classList.add('pulsating');
+                itemName = '🔥 ' + itemName; // Add fire emoji
+            }
+
+            // Add click event listener to the row
+            if (item.showcase) {
+                row.addEventListener('click', () => {
+                    window.open(item.showcase, '_blank');
+                });
+            }
+
+            row.innerHTML = `
+                <td>${itemName}</td>
+                <td>${item.value}</td>
+                <td>${item.demandScale}</td>
+                <td>${item.demandRanking}</td>
+                <td>${item.valueStatus}</td>
+                <td>${item.demandStatus}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function renderKeyTable(data, tableId) {
+        const tableBody = document.getElementById(tableId);
+        tableBody.innerHTML = '';
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.classList.add(item.rarity.toLowerCase());
+            row.innerHTML = `
+                <td>${item.rarity}</td>
+                <td>${item.value}</td>
+                <td>${item.demandScale}</td>
+                <td>${item.demandRanking}</td>
+                <td>${item.valueStatus}</td>
+                <td>${item.demandStatus}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function sortTable(tableData, column, direction, type) {
+        const sortedData = [...tableData].sort((a, b) => {
+            let valA = a[column];
+            let valB = b[column];
+
+            if (type === 'numeric') {
+                valA = parseValue(valA);
+                valB = parseValue(valB);
+            } else if (type === 'demandScale') {
+                valA = (valA === 'N/A' || valA === '') ? -Infinity : parseFloat(String(valA).replace('+', ''));
+                valB = (valB === 'N/A' || valB === '') ? -Infinity : parseFloat(String(valB).replace('+', ''));
+
+                if (isNaN(valA) && isNaN(valB)) return 0;
+                if (isNaN(valA)) return direction === 'asc' ? 1 : -1;
+                if (isNaN(valB)) return direction === 'asc' ? -1 : 1;
+            } else {
+                valA = String(valA).toLowerCase();
+                valB = String(valB).toLowerCase();
+            }
+
+            if (valA < valB) {
+                return direction === 'asc' ? -1 : 1;
+            }
+            if (valA > valB) {
+                return direction === 'asc' ? 1 : -1;
+            }
+            return 0;
+        });
+        return sortedData;
+    }
+
+    function applySortIndicators(headersId, currentColumn, direction) {
+        document.getElementById(headersId).querySelectorAll('th[data-sort-by]').forEach(th => {
+            th.classList.remove('sort-asc', 'sort-desc');
+            const arrow = th.querySelector('.sort-arrow');
+            if (arrow) arrow.textContent = '';
+        });
+
+        const activeHeader = document.getElementById(headersId).querySelector(`th[data-sort-by="${currentColumn}"]`);
+        if (activeHeader) {
+            activeHeader.classList.add(`sort-${direction}`);
+            const arrow = activeHeader.querySelector('.sort-arrow');
+            if (arrow) arrow.textContent = direction === 'asc' ? ' ▲' : ' ▼';
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set last updated date
+      const lastUpdatedElement = document.getElementById('last-updated');
+      const now = new Date();
+      const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' };
+      lastUpdatedElement.textContent = `Last Updated: ${now.toLocaleDateString('en-US', options)}`;
+
+      let displayedMainItems = [...items];
+      let displayedCollectableItems = [...collectableItems]; // Use original collectable items
+
+      // Initial sort for collectable items by value (descending)
+      displayedCollectableItems = sortTable(displayedCollectableItems, currentSortColumnCollectable, sortDirectionCollectable, 'numeric');
+
+      renderMainTable(displayedMainItems, 'item-table');
+      renderCollectableTable(displayedCollectableItems, 'collectable-item-table');
+      renderKeyTable(keyItems, 'key-table');
+
+      // Set initial sort indicator for collectable table
+      applySortIndicators('collectable-table-headers', currentSortColumnCollectable, sortDirectionCollectable);
+
+
+      // Search functionality for main table
+      const searchInput = document.getElementById('search-input');
+      searchInput.addEventListener('input', (event) => {
+        const searchTerm = event.target.value.toLowerCase();
+        displayedMainItems = items.filter(item =>
+          item.item.toLowerCase().includes(searchTerm)
+        );
+        // Reset sort when searching
+        currentSortColumnMain = null;
+        sortDirectionMain = 'asc';
+        applySortIndicators('main-table-headers', currentSortColumnMain, sortDirectionMain);
+        renderMainTable(displayedMainItems, 'item-table');
+      });
+
+      // New search functionality for collectable table
+      const collectableSearchInput = document.getElementById('collectable-search-input');
+      collectableSearchInput.addEventListener('input', (event) => {
+        const searchTerm = event.target.value.toLowerCase();
+        // Filter from the original collectableItems array
+        let filteredData = collectableItems.filter(item =>
+          item.item.toLowerCase().includes(searchTerm)
+        );
+        // Apply current sort order after filtering
+        displayedCollectableItems = sortTable(filteredData, currentSortColumnCollectable, sortDirectionCollectable, 'numeric');
+        renderCollectableTable(displayedCollectableItems, 'collectable-item-table');
+      });
+
+
+      // Sorting for main table
+      document.getElementById('main-table-headers').querySelectorAll('th[data-sort-by]').forEach(header => {
+        header.addEventListener('click', () => {
+          const column = header.dataset.sortBy;
+          let direction = 'asc';
+          if (currentSortColumnMain === column) {
+            direction = sortDirectionMain === 'asc' ? 'desc' : 'asc';
+          }
+
+          applySortIndicators('main-table-headers', column, direction);
+
+          let sortType = 'string';
+          if (column === 'value') {
+              sortType = 'numeric';
+          } else if (column === 'demandScale') {
+              sortType = 'demandScale';
+          }
+
+          displayedMainItems = sortTable(displayedMainItems, column, direction, sortType);
+          renderMainTable(displayedMainItems, 'item-table');
+          currentSortColumnMain = column;
+          sortDirectionMain = direction;
+        });
+      });
+
+      // Sorting for collectable table
+      document.getElementById('collectable-table-headers').querySelectorAll('th[data-sort-by]').forEach(header => {
+        header.addEventListener('click', () => {
+          const column = header.dataset.sortBy;
+          let direction = 'asc';
+          if (currentSortColumnCollectable === column) {
+            direction = sortDirectionCollectable === 'asc' ? 'desc' : 'asc';
+          }
+
+          applySortIndicators('collectable-table-headers', column, direction);
+
+          let sortType = 'string';
+          if (column === 'value') {
+              sortType = 'numeric';
+          } else if (column === 'demandScale') {
+              sortType = 'demandScale';
+          }
+
+          displayedCollectableItems = sortTable(displayedCollectableItems, column, direction, sortType);
+          renderCollectableTable(displayedCollectableItems, 'collectable-item-table');
+          currentSortColumnCollectable = column;
+          sortDirectionCollectable = direction;
+        });
       });
     });
-
-    updateLastUpdated();
-    renderItems();
   </script>
 </body>
 </html>
